@@ -34,6 +34,9 @@ def remove_id(word):
     """Removes the numeric suffix from the parsed recognized words: e.g. 'word-2' > 'word' """
     return word.count("-") == 0 and word or word[0:word.rindex("-")]
 
+def extract_id(word):
+    """Extract the numeric suffix from the parsed recognized words: e.g. 'word-2' > 2 """
+    return word if word.count("-") == 0 else ('-'.join(word.split('-')[:-1]) ,int(word.split('-')[-1].replace("'","")))
 
 def parse_bracketed(s):
     '''Parse word features [abc=... def = ...]
@@ -97,7 +100,9 @@ def parse_parser_results(text):
             else:
                 split_entry = re.split("\(|, ", line[:-1])
                 if len(split_entry) == 3:
-                    rel, left, right = map(lambda x: remove_id(x), split_entry)
+                    rel, left, right = map(lambda x: extract_id(x), split_entry)
+                    left_token, left_idx = left
+                    right_token, right_idx = right
                     sentence['dependencies'].append(tuple([rel,left,right]))
         
         elif state == STATE_COREFERENCE:
